@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+</head>
+
+<body>
+  <img id='imgs' style="width:300px;height:200px" src="./001.jpg" alt="" srcset="">
+  <div>当前图片效果:<span id='jIndex'></span></div>
+  <canvas id='drawing' style="border:1px solid black;" width=300px height=200px>
+  </canvas>
+  <div></div>
+  <button onclick="execPic(0)">
+    黑白
+  </button>
+  <button onclick="execPic(1)">
+    反色
+  </button>
+  <button onclick="execPic(2)">
+    变亮
+  </button>
+  <button onclick="execPic(3)">
+    变暗
+  </button>
+  <button onclick="execPic(4)">
+    复古
+  </button>
+  <button onclick="execPic(5)">
+    蓝色蒙版
+  </button>
+  <button onclick="execPic(6)">
+    透明度
+  </button>
+  <script>
+    //执行图片处理函数
+    function execPic(jSign) {
+      // 设置当前图片执行的效果：
+      switch (jSign) {
+        case 0:
+          // 黑白效果
+          document.getElementById('jIndex').innerHTML = '黑白效果'
+          break;
+        case 1:
+          // 反色
+          document.getElementById('jIndex').innerHTML = '反色效果'
+          break;
+        case 2:
+          // 变亮
+          document.getElementById('jIndex').innerHTML = '变亮效果'
+          break;
+        case 3:
+          // 变暗
+          document.getElementById('jIndex').innerHTML = '变暗效果'
+          break;
+        case 4:
+          // 复古
+          document.getElementById('jIndex').innerHTML = '复古效果'
+          break;
+        case 5:
+          // 蓝色蒙版
+          document.getElementById('jIndex').innerHTML = '蓝色蒙版效果'
+          break;
+        case 6:
+          // 透明度
+          document.getElementById('jIndex').innerHTML = '透明度效果'
+          break;
+      }
+      var drawing = document.getElementById("drawing");
+      //确定浏览器支持<canvas>元素
+      if (drawing.getContext) {
+        var context = drawing.getContext("2d"),
+          image = document.getElementById('imgs'),
+          imageData, data,
+          i, len, average,
+          red, green, blue, alpha;
+        //绘制原始图像
+        setTimeout(() => {
+          context.drawImage(image, 0, 0, 300, 200);
+          //取得图像数据
+          imageData = context.getImageData(0, 0, image.width, image.height);
+          console.log(imageData)
+          data = imageData.data;
+          console.log('data1===', data)
+          for (i = 0, len = data.length; i < len; i += 4) {
+            switch (jSign) {
+              case 0:
+                // 黑白效果
+                blackAndWhite(data, i);
+                break;
+              case 1:
+                // 反色
+                verseColor(data, i);
+                break;
+              case 2:
+                // 变亮
+                lightChange(data, 100, i)
+                break;
+              case 3:
+                // 变暗
+                lightChange(data, -100, i)
+                break;
+              case 4:
+                // 复古
+                goBack(data, i)
+                break;
+              case 5:
+                // 蓝色蒙版
+                blueBoard(data, i)
+                break;
+              case 6:
+                // 透明度
+                opacitySet(data, i)
+                break;
+            }
+
+          }
+          //回写图像数据并显示结果
+          imageData.data = data;
+          context.putImageData(imageData, 0, 0);
+        }, 100)
+
+      }
+
+    }
+    //首次自动执行图片处理函数
+    execPic(0);
+    //  变亮变暗（在r、g、b、通道上加上一正值就是变亮，加上负值就是变暗）
+    function lightChange(data, value, i) {
+      red = data[i];
+      green = data[i + 1];
+      blue = data[i + 2];
+      alpha = data[i + 3];
+      //设置颜色值，透明度不变
+      data[i] = red + value;
+      data[i + 1] = green + value;
+      data[i + 2] = blue + value;
+    };
+    // 反色（去反值）
+    function verseColor(data, i) {
+      red = data[i];
+      green = data[i + 1];
+      blue = data[i + 2];
+      alpha = data[i + 3];
+      //设置颜色值，透明度不变
+      data[i] = 255 - red;
+      data[i + 1] = 255 - green;
+      data[i + 2] = 255 - blue;
+
+    }
+    // 黑白效果（去平均值）
+    function blackAndWhite(data, i) {
+      red = data[i];
+      green = data[i + 1];
+      blue = data[i + 2];
+      alpha = data[i + 3];
+      //求得rgb 平均值
+      average = Math.floor((red + green + blue) / 3);
+      //设置颜色值，透明度不变
+      data[i] = average;
+      data[i + 1] = average;
+      data[i + 2] = average;
+    }
+    // 复古（将r, g, b按比例混合相加）
+    function goBack(data, i) {
+      red = data[i];
+      green = data[i + 1];
+      blue = data[i + 2];
+      alpha = data[i + 3];
+      //设置颜色值，透明度不变
+      data[i] = red * 0.4 + green * 0.3 + blue * 0.3;
+      data[i + 1] = red * 0.3 + green * 0.4 + blue * 0.3;
+      data[i + 2] = red * 0.3 + green * 0.3 + blue * 0.4;
+    }
+    // 蓝色蒙版
+    function blueBoard(data, i) {
+      red = data[i];
+      green = data[i + 1];
+      blue = data[i + 2];
+      alpha = data[i + 3];
+      //求得rgb 平均值
+      average = Math.floor((red + green + blue) / 3);
+      //设置颜色值，透明度不变
+      data[i] = 0;
+      data[i + 1] = 0;
+      data[i + 2] = average;
+    }
+    // 透明度（只要把透明度乘以一个0~1之间的值即可。跟css的opacity一样）
+    function opacitySet(data, i) {
+      // alpha = data[i + 3];
+
+      data[i + 3] *= 0.5;
+    }
+  </script>
+</body>
+
+</html>
