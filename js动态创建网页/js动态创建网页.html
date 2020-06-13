@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <button class="excuteButton">asd</button>
+  <script>
+    excuteButton = document.querySelector(".excuteButton")
+
+    excuteButton.onclick = function () {
+      var external = window.open();
+      console.log(external)
+      var script = external.window.document.createElement("script");
+      script.textContent = `console.log("bac")`;
+      setTimeout(() => {
+        external.window.document.body.appendChild(script);
+      }, 5000)
+      //external.window.eval(rhs.editor.getModel().getValue());
+    };
+  </script>
+</body>
+
+</html>
