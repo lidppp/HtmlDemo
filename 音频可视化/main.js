@@ -19,9 +19,6 @@ canCtx.closePath();
 
 
 
-
-// 登录状态下不会出现这行文字，点击页面右上角一键登录
-
 let pointArr = []
 canCtx.beginPath()
 for (let i = 0; i <= 128; i++) {
